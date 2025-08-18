@@ -1,32 +1,38 @@
 // Arquivo: src/components/FormularioInscricao.jsx
 
 import { useState, useEffect } from 'react';
-// Importando os componentes visuais do Material-UI
+import { useNavigate } from 'react-router-dom';
+import { useNotification } from '../context/NotificationProvider';
+
+// Importando componentes do MUI
 import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Container, Checkbox, FormControlLabel, RadioGroup, Radio, CircularProgress } from '@mui/material';
 
 function FormularioInscricao() {
+  const navigate = useNavigate();
+  const { showNotification } = useNotification();
   const [cursos, setCursos] = useState([]);
   const [formData, setFormData] = useState({
-    nomeCompleto: '',
-    cpf: '',
-    telefone: '',
-    idade: '',
-    email: '',
-    exEducando: 'nao',
-    exEducandoAno: '',
-    motivoEstudar: '',
-    comprometimento: false
+    nomeCompleto: '', cpf: '', telefone: '', idade: '', email: '',
+    exEducando: 'nao', exEducandoAno: '', motivoEstudar: '', comprometimento: false
   });
   const [cursoSelecionado, setCursoSelecionado] = useState('');
   const [loadingCursos, setLoadingCursos] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Por enquanto, usamos uma lista de cursos de exemplo para focar no design
+  // A busca de cursos agora virá da sua planilha
   useEffect(() => {
+    // Futuramente, podemos implementar uma função no Apps Script para buscar os cursos.
+    // Por agora, para manter a simplicidade, usamos uma lista de exemplo.
     const cursosExemplo = [
         { idCurso: 'curso-01', nomeCurso: 'Auxiliar Administrativo' },
         { idCurso: 'curso-02', nomeCurso: 'Criação de Páginas Web' },
-        { idCurso: 'curso-03', nomeCurso: 'Programador Back-End' },
+        { idCurso: 'curso-03', nomeCurso: 'Comandos Lógicos Programáveis' },
+        { idCurso: 'curso-04', nomeCurso: 'Eletricista Instalador' },
+        { idCurso: 'curso-05', nomeCurso: 'Instalador de Acessórios Automotivos' },
+        { idCurso: 'curso-06', nomeCurso: 'Mecânica de Motor Ciclo Otto' },
+        { idCurso: 'curso-07', nomeCurso: 'Mecânica de Suspensão, Direção e Freios de Veículos Leves' },
+        { idCurso: 'curso-08', nomeCurso: 'Operador de Microcomputador' },
+        { idCurso: 'curso-09', nomeCurso: 'Programador Back-End' },
     ];
     setCursos(cursosExemplo);
     setLoadingCursos(false);
@@ -40,18 +46,60 @@ function FormularioInscricao() {
     }));
   };
 
-  // Por enquanto, o envio apenas mostra os dados no console para testarmos a UI
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!cursoSelecionado) {
+      showNotification("Por favor, selecione um curso.", "warning");
+      return;
+    }
+    if (!formData.comprometimento) {
+      showNotification("Você precisa marcar a caixa de comprometimento.", "warning");
+      return;
+    }
+
     setIsSubmitting(true);
-    console.log("Dados do formulário a serem enviados:", {
+
+    const urlDaApi = "https://script.google.com/macros/s/AKfycbyiSMYt0fF6A4LE4Mpstc2SjkJTuArNylwbABB_bA-SQ0L4Bm9tvVj1Cme3ShkL9jFR/exec"; 
+
+    const curso = cursos.find(c => c.idCurso === cursoSelecionado);
+    const dadosParaEnviar = {
       ...formData,
-      cursoPretendido: cursoSelecionado
-    });
-    setTimeout(() => {
-      alert("Formulário enviado com sucesso! (Modo de Teste)");
+      cursoPretendido: curso ? curso.nomeCurso : 'Não encontrado'
+    };
+
+    try {
+      // Usamos o método 'fetch' para enviar os dados para a URL do Apps Script
+      const response = await fetch(urlDaApi, {
+        method: 'POST',
+        redirect: "follow", // Importante para o Apps Script
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(dadosParaEnviar)
+      });
+      
+      // O Apps Script nos devolve uma resposta, que precisamos ler como texto
+      const textResponse = await response.text();
+      const resultado = JSON.parse(textResponse);
+
+      if (resultado.status === "sucesso") {
+        showNotification(`Inscrição realizada! Seu número é ${resultado.numeroInscricao}.`, "success");
+        // Limpa o formulário
+        setFormData({
+            nomeCompleto: '', cpf: '', telefone: '', idade: '', email: '',
+            exEducando: 'nao', exEducandoAno: '', motivoEstudar: '', comprometimento: false
+        });
+        setCursoSelecionado('');
+      } else {
+        throw new Error(resultado.mensagem || "Ocorreu um erro desconhecido no servidor.");
+      }
+
+    } catch (error) {
+      console.error("Erro ao enviar inscrição:", error);
+      showNotification(`Erro ao enviar inscrição: ${error.message}`, "error");
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
   
   return (
