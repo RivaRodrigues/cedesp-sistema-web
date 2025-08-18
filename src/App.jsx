@@ -1,10 +1,15 @@
 // Arquivo: src/App.jsx
 
+import { NotificationProvider } from './context/NotificationProvider'; // Importamos nosso provedor
 import HomePage from './pages/HomePage';
 
 function App() {
-  // Por enquanto, nosso App apenas renderiza a página de inscrição
-  return <HomePage />;
+  return (
+    // Envolvemos a HomePage com o NotificationProvider
+    <NotificationProvider>
+      <HomePage />
+    </NotificationProvider>
+  );
 }
 
 export default App;
