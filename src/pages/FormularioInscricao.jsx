@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../context/NotificationProvider';
+
+// Importando componentes do MUI
 import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Container, Checkbox, FormControlLabel, RadioGroup, Radio, CircularProgress } from '@mui/material';
 
 function FormularioInscricao() {
@@ -18,6 +20,7 @@ function FormularioInscricao() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    // Lista de cursos de exemplo (podemos buscar da planilha no futuro)
     const cursosExemplo = [
         { idCurso: 'curso-01', nomeCurso: 'Auxiliar Administrativo' },
         { idCurso: 'curso-02', nomeCurso: 'Criação de Páginas Web' },
@@ -25,8 +28,9 @@ function FormularioInscricao() {
         { idCurso: 'curso-04', nomeCurso: 'Eletricista Instalador' },
         { idCurso: 'curso-05', nomeCurso: 'Instalador de Acessórios Automotivos' },
         { idCurso: 'curso-06', nomeCurso: 'Mecânica de Motor Ciclo Otto' },
-        { idCurso: 'curso-07', nomeCurso: 'Mecânica de Suspensão, Direção e Freios' },
+        { idCurso: 'curso-07', nomeCurso: 'Mecânica de Suspensão, Direção e Freios de Veículos Leves' },
         { idCurso: 'curso-08', nomeCurso: 'Operador de Microcomputador' },
+        { idCurso: 'curso-09', nomeCurso: 'Programador Back-End' },
     ];
     setCursos(cursosExemplo);
     setLoadingCursos(false);
@@ -52,16 +56,23 @@ function FormularioInscricao() {
     }
 
     setIsSubmitting(true);
-    const urlDaApi = "https://script.google.com/macros/s/AKfycbyiSMYt0fF6A4LE4Mpstc2SjkJTuArNylwbABB_bA-SQ0L4Bm9tvVj1Cme3ShkL9jFR/exec"; 
+
+    // URL ATUALIZADA PARA SUA NOVA PLANILHA 'db-cedesp'
+    const urlDaApi = "https://script.google.com/macros/s/AKfycbwHDoldhvl8mlxuindmlM9r1tVy-ygG-tNOo-eGqQXufureXnmZoECrf3LJYJSXGLKd/exec"; 
 
     const curso = cursos.find(c => c.idCurso === cursoSelecionado);
-    const dadosParaEnviar = { ...formData, cursoPretendido: curso ? curso.nomeCurso : 'Não encontrado' };
+    const dadosParaEnviar = {
+      ...formData,
+      cursoPretendido: curso ? curso.nomeCurso : 'Não encontrado'
+    };
 
     try {
       const response = await fetch(urlDaApi, {
         method: 'POST',
         redirect: "follow",
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
         body: JSON.stringify(dadosParaEnviar)
       });
       
@@ -76,8 +87,9 @@ function FormularioInscricao() {
         });
         setCursoSelecionado('');
       } else {
-        throw new Error(resultado.mensagem || "Ocorreu um erro no servidor.");
+        throw new Error(resultado.mensagem || "Ocorreu um erro desconhecido no servidor.");
       }
+
     } catch (error) {
       console.error("Erro ao enviar inscrição:", error);
       showNotification(`Erro ao enviar inscrição: ${error.message}`, "error");
@@ -93,6 +105,7 @@ function FormularioInscricao() {
           <Typography variant="h5" component="h1" gutterBottom sx={{ textAlign: 'center', fontWeight: 'bold' }}>
             Ficha de Inscrição
           </Typography>
+          
           <Typography variant="h6" component="h2" sx={{ mt: 3, mb: 2 }}>Dados Pessoais</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField label="Nome Completo" name="nomeCompleto" value={formData.nomeCompleto} onChange={handleChange} required fullWidth />
@@ -101,6 +114,7 @@ function FormularioInscricao() {
             <TextField label="Idade" name="idade" type="number" value={formData.idade} onChange={handleChange} required fullWidth />
             <TextField label="Email" name="email" type="email" value={formData.email} onChange={handleChange} required fullWidth />
           </Box>
+
           <Typography variant="h6" component="h2" sx={{ mt: 4, mb: 2 }}>Questionário</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <FormControl component="fieldset">
@@ -117,6 +131,7 @@ function FormularioInscricao() {
             <FormControlLabel control={<Checkbox checked={formData.comprometimento} onChange={handleChange} name="comprometimento" required />}
               label="Você se compromete a participar de todas as atividades?" />
           </Box>
+          
           <Typography variant="h6" component="h2" sx={{ mt: 4, mb: 2 }}>Inscrição no Curso</Typography>
           <FormControl fullWidth required>
             <InputLabel id="curso-select-label">Curso Desejado</InputLabel>
@@ -125,6 +140,7 @@ function FormularioInscricao() {
               {cursos.map(curso => (<MenuItem key={curso.idCurso} value={curso.idCurso}>{curso.nomeCurso}</MenuItem>))}
             </Select>
           </FormControl>
+          
           <Button type="submit" variant="contained" color="primary" size="large" sx={{ mt: 3 }} fullWidth disabled={isSubmitting}>
             {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Enviar Inscrição"}
           </Button>
