@@ -55,21 +55,7 @@ function FormularioInscricao() {
     const urlDaApi = "https://script.google.com/macros/s/AKfycbyiSMYt0fF6A4LE4Mpstc2SjkJTuArNylwbABB_bA-SQ0L4Bm9tvVj1Cme3ShkL9jFR/exec"; 
 
     const curso = cursos.find(c => c.idCurso === cursoSelecionado);
-    
-    // AQUI ESTÁ A MUDANÇA: Criamos o objeto de dados explicitamente,
-    // garantindo a ordem correta para o Apps Script
-    const dadosParaEnviar = {
-      nomeCompleto: formData.nomeCompleto,
-      cpf: formData.cpf,
-      telefone: formData.telefone,
-      idade: formData.idade,
-      email: formData.email,
-      exEducando: formData.exEducando,
-      exEducandoAno: formData.exEducandoAno,
-      motivoEstudar: formData.motivoEstudar,
-      comprometimento: formData.comprometimento,
-      cursoPretendido: curso ? curso.nomeCurso : 'Não encontrado',
-    };
+    const dadosParaEnviar = { ...formData, cursoPretendido: curso ? curso.nomeCurso : 'Não encontrado' };
 
     try {
       const response = await fetch(urlDaApi, {
