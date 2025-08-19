@@ -1,5 +1,4 @@
 // Arquivo: src/context/NotificationProvider.jsx
-
 import React, { createContext, useState, useContext } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
@@ -14,7 +13,7 @@ export const NotificationProvider = ({ children }) => {
   const [notification, setNotification] = useState({
     open: false,
     message: '',
-    severity: 'info', // pode ser 'error', 'warning', 'info', 'success'
+    severity: 'info',
   });
 
   const showNotification = (message, severity = 'success') => {
