@@ -59,7 +59,7 @@ function FormularioInscricao() {
 
     setIsSubmitting(true);
 
-    const urlDaApi = "https://script.google.com/macros/s/AKfycbxBW86zGK05P3cQ9I0Wt0Nn8B9ebFt0Uo_HmsuhAkQCw-AF-IEHMKQwfqqL4F6DctS2/exec"; 
+    const urlDaApi = "https://script.google.com/macros/s/AKfycbwHDoldhvl8mlxuindmlM9r1tVy-ygG-tNOo-eGqQXufureXnmZoECrf3LJYJSXGLKd/exec"; 
 
     const curso = cursos.find(c => c.idCurso === cursoSelecionado);
     const dadosParaEnviar = {
