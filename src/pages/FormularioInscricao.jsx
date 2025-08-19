@@ -19,10 +19,8 @@ function FormularioInscricao() {
   const [loadingCursos, setLoadingCursos] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // A busca de cursos agora virá da sua planilha
   useEffect(() => {
-    // Futuramente, podemos implementar uma função no Apps Script para buscar os cursos.
-    // Por agora, para manter a simplicidade, usamos uma lista de exemplo.
+    // Lista de cursos de exemplo (podemos buscar da planilha no futuro)
     const cursosExemplo = [
         { idCurso: 'curso-01', nomeCurso: 'Auxiliar Administrativo' },
         { idCurso: 'curso-02', nomeCurso: 'Criação de Páginas Web' },
@@ -59,6 +57,7 @@ function FormularioInscricao() {
 
     setIsSubmitting(true);
 
+    // URL ATUALIZADA PARA SUA NOVA PLANILHA 'db-cedesp'
     const urlDaApi = "https://script.google.com/macros/s/AKfycbwHDoldhvl8mlxuindmlM9r1tVy-ygG-tNOo-eGqQXufureXnmZoECrf3LJYJSXGLKd/exec"; 
 
     const curso = cursos.find(c => c.idCurso === cursoSelecionado);
@@ -68,23 +67,20 @@ function FormularioInscricao() {
     };
 
     try {
-      // Usamos o método 'fetch' para enviar os dados para a URL do Apps Script
       const response = await fetch(urlDaApi, {
         method: 'POST',
-        redirect: "follow", // Importante para o Apps Script
+        redirect: "follow",
         headers: {
           'Content-Type': 'text/plain;charset=utf-8',
         },
         body: JSON.stringify(dadosParaEnviar)
       });
       
-      // O Apps Script nos devolve uma resposta, que precisamos ler como texto
       const textResponse = await response.text();
       const resultado = JSON.parse(textResponse);
 
       if (resultado.status === "sucesso") {
         showNotification(`Inscrição realizada! Seu número é ${resultado.numeroInscricao}.`, "success");
-        // Limpa o formulário
         setFormData({
             nomeCompleto: '', cpf: '', telefone: '', idade: '', email: '',
             exEducando: 'nao', exEducandoAno: '', motivoEstudar: '', comprometimento: false
